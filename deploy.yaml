@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-api-extension
+  # namespace: argo
+spec:
+  selector:
+    matchLabels:
+      app: workflow-api-extension
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: workflow-api-extension
+    spec:
+      containers:
+      - name: workflow-api-extension
+        image: harbor.51vr.local/argo/argo-workflow-api-extension:v1.1.0
+        imagePullPolicy: IfNotPresent
+        # command: ["./home/tyler/workflowapi"]
+        ports:
+        - containerPort: 8888
+          name: web
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 8888
+        #     scheme: HTTP
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: false
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: false
+      # serviceAccountName: argo-server
+      volumes:
+      - emptyDir: {}
+        name: tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workflow-api-extension
+  # namespace: argo # 声明工作空间，默认为default
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 18080 # Service暴露在cluster-ip上的端口，通过<cluster-ip>:port访问服务,通过此端口集群内的服务可以相互访问
+      targetPort: 8888 # Pod的外部访问端口，port和nodePort的数据通过这个端口进入到Pod内部，Pod里面的containers的端口映射到这个端口，提供服务
+      nodePort: 31080 # Node节点的端口，<nodeIP>:nodePort 是提供给集群外部客户访问service的入口
+  selector:
+    app: workflow-api-extension
