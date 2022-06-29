@@ -3,7 +3,6 @@ package http_router
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"k8stool/http_router/message"
 
@@ -19,7 +18,8 @@ import (
 )
 
 var cli *wfclientset.Clientset
-var bearToken string
+
+// var bearToken string
 
 func InitK8SClient() error {
 	config, err := rest.InClusterConfig()
@@ -27,8 +27,8 @@ func InitK8SClient() error {
 		log.Printf(err.Error())
 		panic(err.Error())
 	}
-	bearToken = config.BearerToken
-	log.Printf("beakToken: %s", bearToken)
+	// bearToken = config.BearerToken
+	// log.Printf("beakToken: %s", bearToken)
 	cli = wfclientset.NewForConfigOrDie(config)
 	// clientset, err := kubernetes.NewForConfig(config)
 	// if err != nil {
@@ -43,19 +43,19 @@ func GetWorkFlowsStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	ns := mux.Vars(r)["namespace"]
-	if bearToken != "" {
-		token := r.Header.Get("Authorization")
-		log.Printf("http request token: %s", token)
-		if bearToken != token {
-			err := errors.New("token not valid for running mode")
-			log.Printf(err.Error())
-			WrapResponse(w, message.CommonResponse{
-				Status:   message.FAIL,
-				Messages: err.Error(),
-			})
-			return
-		}
-	}
+	// if bearToken != "" {
+	// 	token := r.Header.Get("Authorization")
+	// 	log.Printf("http request token: %s", token)
+	// 	if bearToken != token {
+	// 		err := errors.New("token not valid for running mode")
+	// 		log.Printf(err.Error())
+	// 		WrapResponse(w, message.CommonResponse{
+	// 			Status:   message.FAIL,
+	// 			Messages: err.Error(),
+	// 		})
+	// 		return
+	// 	}
+	// }
 
 	var req []message.GetWorkFlowsStatusRequest
 	err := ResolveRequest(r, &req)
