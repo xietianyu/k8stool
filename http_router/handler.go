@@ -21,6 +21,16 @@ var cli *wfclientset.Clientset
 
 // var bearToken string
 
+var S2IDMap = map[string]string{
+	"import-scene":   "top-tile",
+	"import-texture": "tile-s2id",
+	"build-scene":    "tile-s2id",
+	"merge-eid":      "top-tile",
+	"build-vt":       "top-tile",
+	"chunk-lod":      "s2id",
+	"cook":           "",
+}
+
 func InitK8SClient() error {
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -81,6 +91,16 @@ func GetWorkFlowsStatus(w http.ResponseWriter, r *http.Request) {
 		item := message.WorkFlowInfo{}
 		item.StatusPhase = string(wf.Status.Phase)
 		item.WorkflowName = wf.Name
+		// 取s2id
+		var s2id string
+		if value, ok := S2IDMap[wf.Spec.Entrypoint]; ok {
+			for _, param := range wf.Spec.Arguments.Parameters {
+				if param.Name == value {
+					s2id = string(*param.Value)
+				}
+			}
+		}
+		item.S2ID = s2id
 		res = append(res, item)
 	}
 	messageResp := message.CommonResponse{}

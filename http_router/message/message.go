@@ -22,4 +22,5 @@ type GetWorkFlowStatusResponse struct {
 type WorkFlowInfo struct {
 	WorkflowName string `json:"work_flow_name"`
 	StatusPhase  string `json:"phase_status"`
+	S2ID         string `json:"s2id"`
 }

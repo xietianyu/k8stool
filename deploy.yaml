@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: workflow-api-extension
-        image: harbor.51vr.local/argo/argo-workflow-api-extension:v1.1.0
+        image: harbor.51vr.local/argo/argo-workflow-api-extension:v1.3.0
         imagePullPolicy: IfNotPresent
         # command: ["./home/tyler/workflowapi"]
         ports:
